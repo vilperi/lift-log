@@ -1,5 +1,5 @@
-// Bump CACHE when you change any file, so phones pick up the update.
-const CACHE = 'lift-log-v1';
+// Bump CACHE (for example to 'lift-log-2.4') when you change any file, so phones pick up the update.
+const CACHE = 'lift-log-2.3';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'xlsx.full.min.js', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {

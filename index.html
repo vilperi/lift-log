@@ -48,16 +48,38 @@ select{font:inherit;color:inherit;background:var(--in);border:1px solid var(--li
 .tb #tt{font-size:20px;font-weight:650;min-width:150px;font-variant-numeric:tabular-nums}
 .tb button{border:1px solid var(--line);background:var(--in)}
 .tb #tg{background:var(--acc);color:var(--accfg);border-color:var(--acc);font-weight:650}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card)}
+.seg button{min-height:36px;padding:0 12px;border-radius:0;font-weight:600}
+.seg button.on{background:var(--acc);color:var(--accfg)}
 </style></head><body>
 <div id="app"></div>
 <script>
 var K='liftlog.v1';
-var DEF={days:[
-{f:'Upper A',n:'Heavier day: 5–8 reps on the first two lifts, 8–12 on the rest. Finish each exercise 1–3 reps short of failure.',ex:['Bench press','Barbell row','Overhead press','Lat pulldown','Triceps pushdown','Dumbbell curl']},
-{f:'Lower A',n:'Quad focus: 5–8 reps on squat, 8–12 on the rest, 10–15 on calves.',ex:['Squat','Romanian deadlift','Leg press','Leg curl','Calf raise']},
-{f:'Upper B',n:'Lighter day: 8–15 reps, controlled tempo, close to failure on the last set.',ex:['Incline dumbbell press','Dumbbell row','Lateral raise','Pull-up','Overhead triceps extension','Hammer curl']},
-{f:'Lower B',n:'Glute and hamstring focus: 8–15 reps, close to failure on the last set.',ex:['Hip thrust','Walking lunge','Leg extension','Leg curl','Calf raise','Hanging leg raise']}],
-sessions:[],drafts:{},day:0,tab:'w',v:2};
+var L=(function(){try{var v=localStorage.getItem('liftlog.lang');if(v==='fi'||v==='en')return v}catch(e){}return (navigator.language||'').slice(0,2)==='fi'?'fi':'en'})(),LI=L==='fi'?1:0;
+document.documentElement.lang=L;
+var FI={"Workout": "Treeni", "Program": "Ohjelma", "Progress": "Edistyminen", "History": "Historia", "Backup": "Varmuuskopio", "Day {n} focus": "Päivän {n} painopiste", "Rename": "Nimeä uudelleen", "change": "vaihda", "Remove exercise": "Poista liike", "Last time": "Viime kerralla", "No history yet": "Ei vielä historiaa", "reps": "toistot", "Weight, set {n}": "Paino, sarja {n}", "Reps, set {n}": "Toistot, sarja {n}", "Mark set done": "Merkitse sarja tehdyksi", "+ Set": "+ Sarja", "Remove set": "Poista sarja", "+ Add exercise": "+ Lisää liike", "Finish workout": "Lopeta treeni", "No workouts saved yet. Finish a workout and it shows up here.": "Ei vielä tallennettuja treenejä. Lopeta treeni, niin se näkyy täällä.", "Delete workout": "Poista treeni", "Back up your data": "Varmuuskopioi tietosi", "Copy this text and keep it somewhere safe (notes, email to yourself). To restore, paste it back and tap Import.": "Kopioi tämä teksti talteen turvalliseen paikkaan (muistiinpanot, sähköposti itsellesi). Palauta liittämällä teksti takaisin ja napauttamalla Tuo.", "Copy": "Kopioi", "Import": "Tuo", "Copied.": "Kopioitu.", "Select the text and copy it manually.": "Valitse teksti ja kopioi se käsin.", "That text is not a valid backup.": "Teksti ei ole kelvollinen varmuuskopio.", "Change exercise": "Vaihda liike", "Add exercise": "Lisää liike", "Cancel": "Peruuta", "Save": "Tallenna", "Nothing to save yet. Enter at least one set first.": "Ei vielä mitään tallennettavaa. Kirjaa ensin vähintään yksi sarja.", "Rest time (seconds or m:ss)": "Lepoaika (sekunteja tai m:ss)", "Rest": "Lepo", "Stop": "Pysäytä", "Start": "Aloita", "Charts appear after you save your first workout.": "Kaaviot ilmestyvät, kun olet tallentanut ensimmäisen treenin.", "kg total": "kg yhteensä", "Exercise": "Liike", "Est. 1RM": "Arvioitu 1RM", "Top weight": "Suurin paino", "Volume": "Volyymi", "Log this exercise in at least two workouts to see a trend.": "Kirjaa tämä liike vähintään kahteen treeniin nähdäksesi kehityksen.", "Latest": "Viimeisin", "Best: {b} in {n} workouts": "Paras: {b}, {n} treeniä", "Estimated 1RM uses the Epley formula on your best set. It is least reliable above about 12 reps.": "Arvioitu 1RM perustuu Epleyn kaavaan parhaasta sarjastasi. Se on epätarkin yli noin 12 toiston sarjoilla.", "Progress chart": "Edistymiskaavio", "Choose a program. Your saved workouts and charts are not affected.": "Valitse ohjelma. Tallennetut treenisi ja kaaviosi eivät muutu.", "Use this program": "Käytä tätä ohjelmaa", "Tap again to replace your current program": "Napauta uudelleen korvataksesi nykyisen ohjelmasi", "Apply import": "Ota tuonti käyttöön", "Found {n} workouts and {s} sets, {a} to {b}. They will be added to History.": "Löytyi {n} treeniä ja {s} sarjaa, {a} – {b}. Ne lisätään Historiaan.", "Found {n} training days: {l}. This replaces your current program.": "Löytyi {n} treenipäivää: {l}. Tämä korvaa nykyisen ohjelmasi.", "Could not read that file.": "Tiedostoa ei voitu lukea.", "Could not load the Excel reader. Reload the app and try again.": "Excel-lukijaa ei voitu ladata. Lataa sovellus uudelleen ja yritä uudelleen.", "Import program from Excel": "Tuo ohjelma Excelistä", "Import history from Excel": "Tuo historia Excelistä", "Choose an .xlsx, .xls or .csv file. Required columns: “Day”, “Exercise”. Optional columns: “Sets”, “Reps”. Finnish headers also work (“Päivä”, “Liike”, “Sarjat”, “Toistot”).": "Valitse .xlsx-, .xls- tai .csv-tiedosto. Pakolliset sarakkeet: Day tai Päivä, Exercise tai Liike. Valinnaiset: Sets tai Sarjat, Reps tai Toistot.", "Choose an .xlsx, .xls or .csv file. Required columns: “Date”, “Exercise”. Optional columns: “Day”, “Sets”, “Weight”, “Reps”. Finnish headers also work (“Pvm”, “Liike”, “Päivä”, “Sarjat”, “Paino”, “Toistot”).": "Valitse .xlsx-, .xls- tai .csv-tiedosto. Pakolliset sarakkeet: Date tai Pvm, Exercise tai Liike. Valinnaiset: Day tai Päivä, Sets tai Sarjat, Weight tai Paino, Reps tai Toistot.", "Rows with the same Day become one training day, with the exercises in row order. “Reps” is shown on each exercise card as the target. Importing replaces your current program.": "Samalla Day- tai Päivä-arvolla olevat rivit muodostavat yhden treenipäivän, ja liikkeet tulevat rivien järjestyksessä. Reps tai Toistot näkyy liikkeen kortissa tavoitteena. Tuonti korvaa nykyisen ohjelmasi.", "Rows with the same Date and Day become one workout. Workouts already in History are skipped.": "Samalla Date- tai Pvm-arvolla ja Day- tai Päivä-arvolla olevat rivit muodostavat yhden treenin. Historiassa jo olevat treenit ohitetaan.", "No usable rows found. Check that the file has the columns “Date” and “Exercise”.": "Käyttökelpoisia rivejä ei löytynyt. Tarkista, että tiedostossa on sarakkeet Date tai Pvm ja Exercise tai Liike.", "No usable rows found. Check that the file has the columns “Day” and “Exercise”.": "Käyttökelpoisia rivejä ei löytynyt. Tarkista, että tiedostossa on sarakkeet Day tai Päivä ja Exercise tai Liike.", "Target: {r} reps": "Tavoite: {r} toistoa"},FX={"Bench press": "Penkkipunnerrus", "Incline dumbbell press": "Vinopenkkipunnerrus käsipainoilla", "Chest press machine": "Rintaprässi", "Cable fly": "Kaapelivipunousu", "Pec deck": "Pec deck -laite", "Dips": "Dipit", "Triceps pushdown": "Ojentajaveto taljassa", "Skull crusher": "Ranskalainen punnerrus", "Overhead triceps extension": "Ojentajapunnerrus pään yli", "Barbell row": "Kulmasoutu tangolla", "Dumbbell row": "Kulmasoutu käsipainolla", "Lat pulldown": "Ylätalja", "Pull-up": "Leuanveto", "Seated cable row": "Istuen soutu taljassa", "Dumbbell curl": "Hauiskääntö käsipainoilla", "Barbell curl": "Hauiskääntö tangolla", "Hammer curl": "Vasarakääntö", "Squat": "Kyykky", "Front squat": "Etukyykky", "Leg press": "Jalkaprässi", "Romanian deadlift": "Romanialainen maastaveto", "Deadlift": "Maastaveto", "Leg extension": "Reiden ojennus", "Leg curl": "Reiden koukistus", "Walking lunge": "Askelkyykky kävellen", "Calf raise": "Pohjenousu", "Hip thrust": "Lantionnosto", "Overhead press": "Pystypunnerrus", "Dumbbell shoulder press": "Pystypunnerrus käsipainoilla", "Lateral raise": "Sivunosto", "Rear delt fly": "Takaolkapään nosto", "Face pull": "Face pull", "Cable crunch": "Vatsarutistus taljassa", "Plank": "Lankku", "Hanging leg raise": "Roikkuva jalannosto"};
+function tr(s,o){var r=(L==='fi'&&FI[s])||s;if(o)for(var k in o)r=r.split('{'+k+'}').join(o[k]);return r}
+function xn(n){return L==='fi'&&FX[n]?FX[n]:n}
+function LOC(){return L==='fi'?'fi-FI':undefined}
+function setLang(v){L=v;LI=v==='fi'?1:0;try{localStorage.setItem('liftlog.lang',v)}catch(e){}document.documentElement.lang=v;pend=null;pmsg=''}
+var PS=[
+{t:['Upper/Lower · 4 days a week','Ylä-/alavartalo · 4 päivää viikossa'],d:['Each muscle twice a week. A days heavier, B days lighter. The best-supported fit for four sessions.','Jokainen lihas kaksi kertaa viikossa. A-päivät raskaampia, B-päivät kevyempiä. Parhaiten tutkimuksiin perustuva valinta neljälle treenille.'],days:[
+{f:['Upper A','Ylävartalo A'],n:['Heavier day: 5–8 reps on the first two lifts, 8–12 on the rest. Finish each exercise 1–3 reps short of failure.','Raskaampi päivä: 5–8 toistoa kahteen ensimmäiseen liikkeeseen, 8–12 muihin. Lopeta jokainen liike 1–3 toistoa ennen loppuun asti menemistä.'],ex:['Bench press','Barbell row','Overhead press','Lat pulldown','Triceps pushdown','Dumbbell curl']},
+{f:['Lower A','Alavartalo A'],n:['Quad focus: 5–8 reps on squat, 8–12 on the rest, 10–15 on calves.','Reisipainotteinen: 5–8 toistoa kyykkyyn, 8–12 muihin, 10–15 pohkeisiin.'],ex:['Squat','Romanian deadlift','Leg press','Leg curl','Calf raise']},
+{f:['Upper B','Ylävartalo B'],n:['Lighter day: 8–15 reps, controlled tempo, close to failure on the last set.','Kevyempi päivä: 8–15 toistoa, hallittu tempo, viimeinen sarja lähelle loppuun asti.'],ex:['Incline dumbbell press','Dumbbell row','Lateral raise','Pull-up','Overhead triceps extension','Hammer curl']},
+{f:['Lower B','Alavartalo B'],n:['Glute and hamstring focus: 8–15 reps, close to failure on the last set.','Pakara- ja takareisipainotteinen: 8–15 toistoa, viimeinen sarja lähelle loppuun asti.'],ex:['Hip thrust','Walking lunge','Leg extension','Leg curl','Calf raise','Hanging leg raise']}]},
+{t:['Full body · 3 days a week','Koko keho · 3 päivää viikossa'],d:['Whole body every session. Good if you sometimes miss a day.','Koko keho jokaisella kerralla. Sopii, jos välillä jää treeni väliin.'],days:[
+{f:['Full body A','Koko keho A'],n:['6–10 reps on the main lifts, 10–15 on the rest.','6–10 toistoa pääliikkeisiin, 10–15 muihin.'],ex:['Squat','Bench press','Barbell row','Lateral raise','Triceps pushdown','Calf raise']},
+{f:['Full body B','Koko keho B'],n:['6–10 reps on the main lifts, 10–15 on the rest.','6–10 toistoa pääliikkeisiin, 10–15 muihin.'],ex:['Romanian deadlift','Overhead press','Lat pulldown','Incline dumbbell press','Dumbbell curl','Hanging leg raise']},
+{f:['Full body C','Koko keho C'],n:['8–12 reps, controlled tempo.','8–12 toistoa, hallittu tempo.'],ex:['Leg press','Dumbbell shoulder press','Seated cable row','Cable fly','Leg curl','Overhead triceps extension']}]},
+{t:['Push/Pull/Legs · 3 days a week','Työntö/veto/jalat · 3 päivää viikossa'],d:['Pushing, pulling and legs on separate days. Run it twice a week for six days.','Työntö-, veto- ja jalkapäivät erikseen. Tee kahdesti viikossa, jos treenaat kuusi päivää.'],days:[
+{f:['Push','Työntö'],n:['6–10 reps on presses, 10–15 on isolation.','6–10 toistoa punnerruksiin, 10–15 eristäviin liikkeisiin.'],ex:['Bench press','Overhead press','Incline dumbbell press','Lateral raise','Triceps pushdown']},
+{f:['Pull','Veto'],n:['6–10 reps on rows and pulldowns, 10–15 on the rest.','6–10 toistoa soutuihin ja ylätaljaan, 10–15 muihin.'],ex:['Barbell row','Lat pulldown','Seated cable row','Face pull','Dumbbell curl']},
+{f:['Legs','Jalat'],n:['6–10 reps on squat, 8–12 on the rest, 10–15 on calves.','6–10 toistoa kyykkyyn, 8–12 muihin, 10–15 pohkeisiin.'],ex:['Squat','Romanian deadlift','Leg press','Leg curl','Calf raise']}]}
+];
+function mk(i){return PS[i].days.map(function(d){return {f:d.f[LI],n:d.n[LI],ex:d.ex.map(xn)}})}
+function progs(){return PS.map(function(p,i){return {t:p.t[LI],d:p.d[LI],days:mk(i)}})}
+var DEF={days:mk(0),sessions:[],drafts:{},day:0,tab:'w',v:2};
 var LIB=['Bench press','Incline dumbbell press','Chest press machine','Cable fly','Pec deck','Dips','Triceps pushdown','Skull crusher','Overhead triceps extension','Barbell row','Dumbbell row','Lat pulldown','Pull-up','Seated cable row','Dumbbell curl','Barbell curl','Hammer curl','Squat','Front squat','Leg press','Romanian deadlift','Deadlift','Leg extension','Leg curl','Walking lunge','Calf raise','Hip thrust','Overhead press','Dumbbell shoulder press','Lateral raise','Rear delt fly','Face pull','Cable crunch','Plank','Hanging leg raise'];
 var S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
 if(!S||!S.days)S=JSON.parse(JSON.stringify(DEF));
@@ -66,10 +88,10 @@ var app=document.getElementById('app');
 function save(){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}}
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function draft(d){
-  if(!S.drafts[d])S.drafts[d]={items:S.days[d].ex.map(function(n){return {name:n,sets:[{w:'',r:'',d:0},{w:'',r:'',d:0},{w:'',r:'',d:0}]}})};
+  if(!S.drafts[d])S.drafts[d]={items:S.days[d].ex.map(function(n,i){var m=(S.days[d].mt||[])[i]||{},c=m.n||3,sets=[];for(var j=0;j<c;j++)sets.push({w:'',r:'',d:0});return {name:n,pn:c,t:m.r||'',sets:sets}})};
   return S.drafts[d];
 }
-function sync(d){S.days[d].ex=draft(d).items.map(function(i){return i.name});save()}
+function sync(d){var it=draft(d).items;S.days[d].ex=it.map(function(i){return i.name});S.days[d].mt=it.map(function(i){return {n:i.pn||3,r:i.t||''}});save()}
 function last(name){
   for(var i=S.sessions.length-1;i>=0;i--){
     var it=S.sessions[i].items.filter(function(x){return x.name.toLowerCase()===name.toLowerCase()})[0];
@@ -78,14 +100,14 @@ function last(name){
 }
 function fmt(sets){return sets.map(function(s){return (s.w||'–')+'×'+(s.r||'–')}).join(', ')}
 function names(){
-  var o={};LIB.forEach(function(n){o[n]=1});
+  var o={};LIB.forEach(function(n){o[xn(n)]=1});
   S.days.forEach(function(d){d.ex.forEach(function(n){o[n]=1})});
   S.sessions.forEach(function(s){s.items.forEach(function(i){o[i.name]=1})});
   return Object.keys(o).sort();
 }
 function ask(title,val,sug,cb){
   var ov=document.createElement('div');ov.className='ov';
-  ov.innerHTML='<div><b>'+esc(title)+'</b><input id="ai" list="dl" value="'+esc(val)+'" autocomplete="off" style="margin-top:8px">'+(sug?'<datalist id="dl">'+names().map(function(n){return '<option value="'+esc(n)+'">'}).join('')+'</datalist>':'')+'<div class="b"><button id="ac">Cancel</button><button class="pri" id="as">Save</button></div></div>';
+  ov.innerHTML='<div><b>'+esc(title)+'</b><input id="ai" list="dl" value="'+esc(val)+'" autocomplete="off" style="margin-top:8px">'+(sug?'<datalist id="dl">'+names().map(function(n){return '<option value="'+esc(n)+'">'}).join('')+'</datalist>':'')+'<div class="b"><button id="ac">'+tr('Cancel')+'</button><button class="pri" id="as">'+tr('Save')+'</button></div></div>';
   document.body.appendChild(ov);
   var inp=ov.querySelector('#ai');inp.focus();inp.select();
   function done(ok){var v=inp.value.trim();ov.remove();if(ok&&v)cb(v)}
@@ -95,38 +117,38 @@ function ask(title,val,sug,cb){
   ov.onclick=function(e){if(e.target===ov)done(0)};
 }
 function render(){
-  var h='<h1>Lift log</h1><div class="tabs top">'+[['w','Workout'],['g','Program'],['p','Progress'],['h','History'],['b','Backup']].map(function(t){return '<button data-a="tab" data-v="'+t[0]+'" class="'+(S.tab===t[0]?'on':'')+'">'+t[1]+'</button>'}).join('')+'</div>';
+  var h='<div class="hd"><h1>Lift log</h1><div class="seg"><button data-a="lang" data-v="en" class="'+(L==='en'?'on':'')+'">EN</button><button data-a="lang" data-v="fi" class="'+(L==='fi'?'on':'')+'">FI</button></div></div><div class="tabs top">'+[['w','Workout'],['g','Program'],['p','Progress'],['h','History'],['b','Backup']].map(function(t){return '<button data-a="tab" data-v="'+t[0]+'" class="'+(S.tab===t[0]?'on':'')+'">'+tr(t[1])+'</button>'}).join('')+'</div>';
   if(S.tab==='w')h+=work();else if(S.tab==='g')h+=pick();else if(S.tab==='p')h+=prog();else if(S.tab==='h')h+=hist();else h+=bak();
-  app.innerHTML=h;tick();
+  app.innerHTML=h+'<div class="mut" style="text-align:center;margin:18px 0 0;font-size:12px">Lift log v2</div>';tick();
 }
 function work(){
   var d=S.day,dr=draft(d);
   var h='<div class="tabs">'+S.days.map(function(x,i){return '<button data-a="day" data-v="'+i+'" class="'+(i===d?'on':'')+'">'+(i+1)+'. '+esc(x.f)+'</button>'}).join('')+'</div>';
-  h+='<div class="hd" style="margin:0 2px 8px"><span class="mut">Day '+(d+1)+' focus</span><button data-a="focus" class="add">Rename</button></div>'+(S.days[d].n?'<div class="mut" style="margin:-4px 2px 10px">'+esc(S.days[d].n)+'</div>':'');
+  h+='<div class="hd" style="margin:0 2px 8px"><span class="mut">'+tr('Day {n} focus',{n:d+1})+'</span><button data-a="focus" class="add">'+tr('Rename')+'</button></div>'+(S.days[d].n?'<div class="mut" style="margin:-4px 2px 10px">'+esc(S.days[d].n)+'</div>':'');
   dr.items.forEach(function(it,i){
     var l=last(it.name);
-    h+='<div class="card"><div class="hd"><button class="nm" data-a="swap" data-i="'+i+'">'+esc(it.name)+' <span class="mut">· change</span></button><button class="x" data-a="del" data-i="'+i+'" aria-label="Remove exercise">✕</button></div>';
-    h+='<div class="mut">'+(l?'Last time: '+esc(fmt(l)):'No history yet')+'</div>';
-    h+='<div class="row mut" style="margin-top:6px"><span></span><span>kg</span><span>reps</span><span></span></div>';
+    h+='<div class="card"><div class="hd"><button class="nm" data-a="swap" data-i="'+i+'">'+esc(it.name)+' <span class="mut">· '+tr('change')+'</span></button><button class="x" data-a="del" data-i="'+i+'" aria-label="'+tr('Remove exercise')+'">✕</button></div>';
+    h+='<div class="mut">'+(l?tr('Last time')+': '+esc(fmt(l)):tr('No history yet'))+'</div>';
+    h+=(it.t?'<div class="row" style="margin-top:6px"><span></span><span></span><span style="font-size:12px;font-weight:600;color:var(--fg)">'+tr('Target: {r} reps',{r:esc(it.t)})+'</span><span></span></div>':'')+'<div class="row mut" style="margin-top:'+(it.t?2:6)+'px"><span></span><span>kg</span><span>'+tr('reps')+'</span><span></span></div>';
     it.sets.forEach(function(s,j){
       var p=l&&l[j]||l&&l[l.length-1]||{};
-      h+='<div class="row"><span>'+(j+1)+'</span><input inputmode="decimal" data-i="'+i+'" data-s="'+j+'" data-k="w" value="'+esc(s.w)+'" placeholder="'+esc(p.w||'')+'" aria-label="Weight, set '+(j+1)+'"><input inputmode="numeric" data-i="'+i+'" data-s="'+j+'" data-k="r" value="'+esc(s.r)+'" placeholder="'+esc(p.r||'')+'" aria-label="Reps, set '+(j+1)+'"><button class="ck '+(s.d?'on':'')+'" data-a="ck" data-i="'+i+'" data-s="'+j+'" aria-label="Mark set done">✓</button></div>';
+      h+='<div class="row"><span>'+(j+1)+'</span><input inputmode="decimal" data-i="'+i+'" data-s="'+j+'" data-k="w" value="'+esc(s.w)+'" placeholder="'+esc(p.w||'')+'" aria-label="'+tr('Weight, set {n}',{n:j+1})+'"><input inputmode="numeric" data-i="'+i+'" data-s="'+j+'" data-k="r" value="'+esc(s.r)+'" placeholder="'+esc(p.r||'')+'" aria-label="'+tr('Reps, set {n}',{n:j+1})+'"><button class="ck '+(s.d?'on':'')+'" data-a="ck" data-i="'+i+'" data-s="'+j+'" aria-label="'+tr('Mark set done')+'">✓</button></div>';
     });
-    h+='<div style="display:flex;justify-content:space-between;margin-top:6px"><button class="add" data-a="aset" data-i="'+i+'">+ Set</button>'+(it.sets.length>1?'<button class="x" data-a="rset" data-i="'+i+'">Remove set</button>':'')+'</div></div>';
+    h+='<div style="display:flex;justify-content:space-between;margin-top:6px"><button class="add" data-a="aset" data-i="'+i+'">'+tr('+ Set')+'</button>'+(it.sets.length>1?'<button class="x" data-a="rset" data-i="'+i+'">'+tr('Remove set')+'</button>':'')+'</div></div>';
   });
-  h+='<button class="add" data-a="addex" style="width:100%;border:1px dashed var(--line);margin-bottom:12px">+ Add exercise</button>';
-  h+='<button class="pri" data-a="fin">Finish workout</button>';
+  h+='<button class="add" data-a="addex" style="width:100%;border:1px dashed var(--line);margin-bottom:12px">'+tr('+ Add exercise')+'</button>';
+  h+='<button class="pri" data-a="fin">'+tr('Finish workout')+'</button>';
   return h;
 }
 function hist(){
-  if(!S.sessions.length)return '<div class="card mut">No workouts saved yet. Finish a workout and it shows up here.</div>';
-  return S.sessions.slice().reverse().map(function(s){
+  if(!S.sessions.length)return xcard('hist')+'<div class="card mut">'+tr('No workouts saved yet. Finish a workout and it shows up here.')+'</div>';
+  return xcard('hist')+S.sessions.slice().reverse().map(function(s){
     var idx=S.sessions.indexOf(s);
-    return '<div class="card"><div class="hd"><b>'+esc(s.f)+'</b><button class="x" data-a="dels" data-v="'+idx+'" aria-label="Delete workout">✕</button></div><div class="mut">'+new Date(s.t).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'})+'</div>'+s.items.map(function(i){return '<div class="his"><b>'+esc(i.name)+'</b><br><span class="mut">'+esc(fmt(i.sets))+'</span></div>'}).join('')+'</div>';
+    return '<div class="card"><div class="hd"><b>'+esc(s.f)+'</b><button class="x" data-a="dels" data-v="'+idx+'" aria-label="'+tr('Delete workout')+'">✕</button></div><div class="mut">'+new Date(s.t).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short',year:'numeric'})+'</div>'+s.items.map(function(i){return '<div class="his"><b>'+esc(i.name)+'</b><br><span class="mut">'+esc(fmt(i.sets))+'</span></div>'}).join('')+'</div>';
   }).join('');
 }
 function bak(){
-  return '<div class="card"><b>Back up your data</b><p class="mut">Copy this text and keep it somewhere safe (notes, email to yourself). To restore, paste it back and tap Import.</p><textarea id="bk">'+esc(JSON.stringify(S))+'</textarea><div style="display:flex;gap:8px;margin-top:8px"><button class="pri" data-a="copy" style="margin:0">Copy</button><button class="pri" data-a="imp" style="margin:0">Import</button></div><div id="bm" class="mut" style="margin-top:8px"></div></div>';
+  return '<div class="card"><b>'+tr('Back up your data')+'</b><p class="mut">'+tr('Copy this text and keep it somewhere safe (notes, email to yourself). To restore, paste it back and tap Import.')+'</p><textarea id="bk">'+esc(JSON.stringify(S))+'</textarea><div style="display:flex;gap:8px;margin-top:8px"><button class="pri" data-a="copy" style="margin:0">'+tr('Copy')+'</button><button class="pri" data-a="imp" style="margin:0">'+tr('Import')+'</button></div><div id="bm" class="mut" style="margin-top:8px"></div></div>';
 }
 app.addEventListener('input',function(e){
   var t=e.target;if(t.dataset.k===undefined)return;
@@ -137,25 +159,26 @@ app.addEventListener('click',function(e){
   var a=b.dataset.a,d=S.day,dr=draft(d),i=+b.dataset.i,s=+b.dataset.s;
   if(a==='tab'){S.tab=b.dataset.v;cp=-1}
   else if(a==='day'){S.day=+b.dataset.v}
-  else if(a==='focus'){return ask('Day '+(d+1)+' focus',S.days[d].f,0,function(v){S.days[d].f=v;save();render()})}
-  else if(a==='swap'){return ask('Change exercise',dr.items[i].name,1,function(v){dr.items[i].name=v;sync(d);render()})}
-  else if(a==='addex'){return ask('Add exercise','',1,function(v){dr.items.push({name:v,sets:[{w:'',r:'',d:0},{w:'',r:'',d:0},{w:'',r:'',d:0}]});sync(d);render()})}
+  else if(a==='focus'){return ask(tr('Day {n} focus',{n:d+1}),S.days[d].f,0,function(v){S.days[d].f=v;save();render()})}
+  else if(a==='swap'){return ask(tr('Change exercise'),dr.items[i].name,1,function(v){dr.items[i].name=v;sync(d);render()})}
+  else if(a==='addex'){return ask(tr('Add exercise'),'',1,function(v){dr.items.push({name:v,sets:[{w:'',r:'',d:0},{w:'',r:'',d:0},{w:'',r:'',d:0}]});sync(d);render()})}
   else if(a==='del'){dr.items.splice(i,1);sync(d)}
   else if(a==='ck'){var st=dr.items[i].sets[s];st.d=st.d?0:1;if(st.d){startRest();var l=last(dr.items[i].name),p=l&&l[s]||l&&l[l.length-1]||{};if(st.w==='')st.w=p.w||'';if(st.r==='')st.r=p.r||''}}
   else if(a==='aset'){var ss=dr.items[i].sets,pv=ss[ss.length-1];ss.push({w:pv?pv.w:'',r:pv?pv.r:'',d:0})}
   else if(a==='rset'){dr.items[i].sets.pop()}
   else if(a==='fin'){
     var items=dr.items.map(function(it){return {name:it.name,sets:it.sets.filter(function(x){return x.w!==''||x.r!==''}).map(function(x){return {w:x.w,r:x.r}})}}).filter(function(it){return it.sets.length});
-    if(!items.length){return ask('Nothing to save yet. Enter at least one set first.','',0,function(){})}
+    if(!items.length){return ask(tr('Nothing to save yet. Enter at least one set first.'),'',0,function(){})}
     S.sessions.push({t:Date.now(),f:S.days[d].f,items:items});delete S.drafts[d];S.tab='h';
   }
   else if(a==='met'){S.metric=b.dataset.v}
+  else if(a==='lang'){setLang(b.dataset.v)}
   else if(a==='xapply'){applyX()}
   else if(a==='usep'){usePreset(+b.dataset.v)}
   else if(a==='dels'){S.sessions.splice(+b.dataset.v,1)}
-  else if(a==='copy'){var ta=document.getElementById('bk');ta.select();var m=document.getElementById('bm');try{navigator.clipboard.writeText(ta.value).then(function(){m.textContent='Copied.'},function(){m.textContent='Select the text and copy it manually.'})}catch(x){m.textContent='Select the text and copy it manually.'}return}
-  else if(a==='imp'){var m2=document.getElementById('bm');try{var n=JSON.parse(document.getElementById('bk').value);if(!n.days||!n.sessions)throw 0;S=n;S.tab='w';save()}catch(x){m2.textContent='That text is not a valid backup.';return}}
-  save();render();window.scrollTo(0,0);
+  else if(a==='copy'){var ta=document.getElementById('bk');ta.select();var m=document.getElementById('bm');try{navigator.clipboard.writeText(ta.value).then(function(){m.textContent=tr('Copied.')},function(){m.textContent=tr('Select the text and copy it manually.')})}catch(x){m.textContent=tr('Select the text and copy it manually.')}return}
+  else if(a==='imp'){var m2=document.getElementById('bm');try{var n=JSON.parse(document.getElementById('bk').value);if(!n.days||!n.sessions)throw 0;S=n;S.tab='w';save()}catch(x){m2.textContent=tr('That text is not a valid backup.');return}}
+  var y=window.scrollY,top=a==='tab'||a==='day'||a==='fin'||a==='usep'||a==='xapply'||a==='imp';save();render();window.scrollTo(0,top?0:y);
 });
 var tb=document.createElement('div');tb.className='tb';
 tb.innerHTML='<button data-t="edit" id="tt"></button><button data-t="go" id="tg"></button>';
@@ -170,13 +193,13 @@ function tick(){
   tb.style.display=S.tab==='w'?'flex':'none';
   var left=tEnd?Math.ceil((tEnd-Date.now())/1000):0;
   if(tEnd&&left<=0){tEnd=0;left=0;buzz()}
-  tt.textContent='Rest '+mmss(left||S.rest)+' ✎';
-  tg.textContent=left?'Stop':'Start';
+  tt.textContent=tr('Rest')+' '+mmss(left||S.rest)+' ✎';
+  tg.textContent=left?tr('Stop'):tr('Start');
 }
 setInterval(tick,500);
 tb.onclick=function(e){
   var b=e.target.closest('button');if(!b)return;var t=b.dataset.t;
-  if(t==='edit'){ask('Rest time (seconds or m:ss)',mmss(S.rest),0,function(v){var m=v.match(/^(\d+):(\d{1,2})$/),n=m?+m[1]*60+ +m[2]:parseInt(v,10);if(n>0&&n<=3600){S.rest=n;if(tEnd)tEnd=Date.now()+n*1000;save();tick()}});return}
+  if(t==='edit'){ask(tr('Rest time (seconds or m:ss)'),mmss(S.rest),0,function(v){var m=v.match(/^(\d+):(\d{1,2})$/),n=m?+m[1]*60+ +m[2]:parseInt(v,10);if(n>0&&n<=3600){S.rest=n;if(tEnd)tEnd=Date.now()+n*1000;save();tick()}});return}
   if(t==='go'){if(tEnd)tEnd=0;else startRest()}
   save();tick();
 };
@@ -185,7 +208,7 @@ function series(name,m){return S.sessions.map(function(s){
   var it=s.items.filter(function(x){return x.name===name})[0];if(!it)return null;var v=0;
   it.sets.forEach(function(x){var w=num(x.w),r=num(x.r);if(m==='vol')v+=w*r;else if(m==='top')v=Math.max(v,w);else if(w&&r)v=Math.max(v,w*(1+r/30))});
   return v?{t:s.t,v:Math.round(v*10)/10}:null}).filter(Boolean)}
-function dt(t){return new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short'})}
+function dt(t){return new Date(t).toLocaleDateString(LOC(),{day:'numeric',month:'short'})}
 function chart(p){
   var W=320,H=170,L=40,R=12,T=10,B=26,vs=p.map(function(x){return x.v}),lo=Math.min.apply(0,vs),hi=Math.max.apply(0,vs),mn=lo,mx=hi;
   if(mx===mn){mx+=1;mn-=1}
@@ -193,7 +216,7 @@ function chart(p){
   function X(i){return L+i*(W-L-R)/(p.length-1)}
   function Y(v){return T+(mx-v)*(H-T-B)/(mx-mn)}
   var tx='style="fill:var(--mut);font-size:10px"';
-  var s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto" role="img" aria-label="Progress chart">';
+  var s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto" role="img" aria-label="'+tr('Progress chart')+'">';
   [lo,hi].forEach(function(v){s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" style="stroke:var(--line)"/><text x="'+(L-5)+'" y="'+(Y(v)+3)+'" text-anchor="end" '+tx+'>'+Math.round(v)+'</text>'});
   s+='<polyline points="'+p.map(function(x,i){return X(i)+','+Y(x.v)}).join(' ')+'" style="fill:none;stroke:var(--acc);stroke-width:2.5;stroke-linejoin:round"/>';
   p.forEach(function(x,i){s+='<circle cx="'+X(i)+'" cy="'+Y(x.v)+'" r="3.5" style="fill:var(--acc)"/>'});
@@ -203,49 +226,40 @@ function chart(p){
 function prog(){
   var o={};S.sessions.forEach(function(s){s.items.forEach(function(i){o[i.name]=1})});
   var ex=Object.keys(o).sort();
-  if(!ex.length)return '<div class="card mut">Charts appear after you save your first workout.</div>';
+  if(!ex.length)return '<div class="card mut">'+tr('Charts appear after you save your first workout.')+'</div>';
   if(ex.indexOf(S.pex)<0)S.pex=ex[0];
-  var m=S.metric||'e1',p=series(S.pex,m),u=m==='vol'?'kg total':'kg';
-  var h='<div class="card"><label class="lbl" for="pe">Exercise</label><select id="pe" style="margin-top:6px">'+ex.map(function(n){return '<option'+(n===S.pex?' selected':'')+'>'+esc(n)+'</option>'}).join('')+'</select>';
-  h+='<div class="tabs" style="margin:10px 0">'+[['e1','Est. 1RM'],['top','Top weight'],['vol','Volume']].map(function(t){return '<button data-a="met" data-v="'+t[0]+'" class="'+(m===t[0]?'on':'')+'">'+t[1]+'</button>'}).join('')+'</div>';
-  if(p.length<2){h+='<div class="mut">Log this exercise in at least two workouts to see a trend.</div>'+(p.length?'<p>Latest: '+p[0].v+' '+u+'</p>':'')}
+  var m=S.metric||'e1',p=series(S.pex,m),u=m==='vol'?tr('kg total'):'kg';
+  var h='<div class="card"><label class="lbl" for="pe">'+tr('Exercise')+'</label><select id="pe" style="margin-top:6px">'+ex.map(function(n){return '<option'+(n===S.pex?' selected':'')+'>'+esc(n)+'</option>'}).join('')+'</select>';
+  h+='<div class="tabs" style="margin:10px 0">'+[['e1','Est. 1RM'],['top','Top weight'],['vol','Volume']].map(function(t){return '<button data-a="met" data-v="'+t[0]+'" class="'+(m===t[0]?'on':'')+'">'+tr(t[1])+'</button>'}).join('')+'</div>';
+  if(p.length<2){h+='<div class="mut">'+tr('Log this exercise in at least two workouts to see a trend.')+'</div>'+(p.length?'<p>'+tr('Latest')+': '+p[0].v+' '+u+'</p>':'')}
   else{
     var f=p[0].v,l=p[p.length-1].v,df=Math.round((l-f)*10)/10,best=Math.max.apply(0,p.map(function(x){return x.v}));
-    h+=chart(p)+'<p style="margin:8px 0 0">'+f+' → '+l+' '+u+' ('+(df>0?'+':'')+df+')<br><span class="mut">Best: '+best+' '+u+' in '+p.length+' workouts</span></p>';
+    h+=chart(p)+'<p style="margin:8px 0 0">'+f+' → '+l+' '+u+' ('+(df>0?'+':'')+df+')<br><span class="mut">'+tr('Best: {b} in {n} workouts',{b:best+' '+u,n:p.length})+'</span></p>';
   }
-  if(m==='e1')h+='<p class="mut" style="margin:8px 0 0;font-size:13px">Estimated 1RM uses the Epley formula on your best set. It is least reliable above about 12 reps.</p>';
+  if(m==='e1')h+='<p class="mut" style="margin:8px 0 0;font-size:13px">'+tr('Estimated 1RM uses the Epley formula on your best set. It is least reliable above about 12 reps.')+'</p>';
   return h+'</div>';
 }
-var cp=-1,PROGS=[
-{t:'Upper/Lower · 4 days a week',d:'Each muscle twice a week. A days heavier, B days lighter. The best-supported fit for four sessions.',days:DEF.days},
-{t:'Full body · 3 days a week',d:'Whole body every session. Good if you sometimes miss a day.',days:[
-{f:'Full body A',n:'6–10 reps on the main lifts, 10–15 on the rest.',ex:['Squat','Bench press','Barbell row','Lateral raise','Triceps pushdown','Calf raise']},
-{f:'Full body B',n:'6–10 reps on the main lifts, 10–15 on the rest.',ex:['Romanian deadlift','Overhead press','Lat pulldown','Incline dumbbell press','Dumbbell curl','Hanging leg raise']},
-{f:'Full body C',n:'8–12 reps, controlled tempo.',ex:['Leg press','Dumbbell shoulder press','Seated cable row','Cable fly','Leg curl','Overhead triceps extension']}]},
-{t:'Push/Pull/Legs · 3 days a week',d:'Pushing, pulling and legs on separate days. Run it twice a week for six days.',days:[
-{f:'Push',n:'6–10 reps on presses, 10–15 on isolation.',ex:['Bench press','Overhead press','Incline dumbbell press','Lateral raise','Triceps pushdown']},
-{f:'Pull',n:'6–10 reps on rows and pulldowns, 10–15 on the rest.',ex:['Barbell row','Lat pulldown','Seated cable row','Face pull','Dumbbell curl']},
-{f:'Legs',n:'6–10 reps on squat, 8–12 on the rest, 10–15 on calves.',ex:['Squat','Romanian deadlift','Leg press','Leg curl','Calf raise']}]}
-];
+var cp=-1;
 function usePreset(i){
   if(cp!==i){cp=i;return}
-  S.days=JSON.parse(JSON.stringify(PROGS[i].days));S.drafts={};S.day=0;S.tab='w';cp=-1;
+  S.days=mk(i);S.drafts={};S.day=0;S.tab='w';cp=-1;
 }
 function pick(){
-  var h='<p class="mut" style="margin:0 2px 10px">Choose a program. Your saved workouts and charts are not affected.</p>';
-  PROGS.forEach(function(p,i){
-    h+='<div class="card"><b>'+esc(p.t)+'</b><div class="mut">'+esc(p.d)+'</div><div class="mut" style="margin-top:4px">'+p.days.map(function(d){return esc(d.f)}).join(' · ')+'</div><button class="pri" data-a="usep" data-v="'+i+'" style="margin-top:8px">'+(cp===i?'Tap again to replace your current program':'Use this program')+'</button></div>';
+  var h='<p class="mut" style="margin:0 2px 10px">'+tr('Choose a program. Your saved workouts and charts are not affected.')+'</p>';
+  progs().forEach(function(p,i){
+    h+='<div class="card"><b>'+esc(p.t)+'</b><div class="mut">'+esc(p.d)+'</div><div class="mut" style="margin-top:4px">'+p.days.map(function(d){return esc(d.f)}).join(' · ')+'</div><button class="pri" data-a="usep" data-v="'+i+'" style="margin-top:8px">'+(cp===i?tr('Tap again to replace your current program'):tr('Use this program'))+'</button></div>';
   });
-  return h+xcard();
+  return h+xcard('prog');
 }
-var pend=null,pmsg='';
-function xcard(){
-  return '<div class="card"><b>Import from Excel</b><p class="mut">Choose an .xlsx, .xls or .csv file with one row per set. Required column: Exercise. Optional: Date, Day, Set, Weight, Reps. Finnish headers such as Pvm, Liike, Paino and Toistot also work.</p><p class="mut">Rows with a Date are added to History. Rows without dates become your program: each Day becomes a training day with its exercises in order.</p><input type="file" id="xf" accept=".xlsx,.xls,.csv" style="padding:8px">'+(pmsg?'<p style="margin:8px 0 0">'+esc(pmsg)+'</p>':'')+(pend?'<button class="pri" data-a="xapply">Apply import</button>':'')+'</div>';
+var pend=null,pmsg='',pmode='';
+function xcard(m){
+  var pr=m==='prog',on=pmode===m;
+  return '<div class="card"><b>'+tr(pr?'Import program from Excel':'Import history from Excel')+'</b><p class="mut">'+tr(pr?'Choose an .xlsx, .xls or .csv file. Required columns: “Day”, “Exercise”. Optional columns: “Sets”, “Reps”. Finnish headers also work (“Päivä”, “Liike”, “Sarjat”, “Toistot”).':'Choose an .xlsx, .xls or .csv file. Required columns: “Date”, “Exercise”. Optional columns: “Day”, “Sets”, “Weight”, “Reps”. Finnish headers also work (“Pvm”, “Liike”, “Päivä”, “Sarjat”, “Paino”, “Toistot”).')+'</p><p class="mut">'+tr(pr?'Rows with the same Day become one training day, with the exercises in row order. “Reps” is shown on each exercise card as the target. Importing replaces your current program.':'Rows with the same Date and Day become one workout. Workouts already in History are skipped.')+'</p><input type="file" id="xf-'+m+'" accept=".xlsx,.xls,.csv" style="padding:8px">'+(on&&pmsg?'<p style="margin:8px 0 0">'+esc(pmsg)+'</p>':'')+(on&&pend?'<button class="pri" data-a="xapply">'+tr('Apply import')+'</button>':'')+'</div>';
 }
 function loadX(cb){
   if(window.XLSX)return cb();
   var s=document.createElement('script');s.src='xlsx.full.min.js';
-  s.onload=cb;s.onerror=function(){pmsg='Could not load the Excel reader. Reload the app and try again.';render()};
+  s.onload=cb;s.onerror=function(){pmsg=tr('Could not load the Excel reader. Reload the app and try again.');render()};
   document.head.appendChild(s);
 }
 function col(keys,al){for(var i=0;i<keys.length;i++){if(al.indexOf(String(keys[i]).toLowerCase().trim())>=0)return keys[i]}return null}
@@ -257,35 +271,37 @@ function pdate(v){
   if(m)return new Date(+m[1],+m[2]-1,+m[3],12);
   return null;
 }
-function parseX(buf){
+function parseX(buf,mode){
   var wb=XLSX.read(buf,{type:'array',cellDates:true}),hist=[],prog=[],hk={},pk={};
   wb.SheetNames.forEach(function(sn){
     var rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''});if(!rows.length)return;
-    var keys=Object.keys(rows[0]),cE=col(keys,['exercise','liike','harjoitus']),cD=col(keys,['date','pvm','päivämäärä']),cW=col(keys,['day','workout','focus','treeni','päivä']),cK=col(keys,['weight','kg','paino']),cR=col(keys,['reps','toistot','toisto']);
+    var keys=Object.keys(rows[0]),cE=col(keys,['exercise','liike','harjoitus']),cD=col(keys,['date','pvm','päivämäärä']),cW=col(keys,['day','workout','focus','treeni','päivä']),cK=col(keys,['weight','kg','paino']),cR=col(keys,['reps','toistot','toisto']),cS=col(keys,['sets','set','sarjat','sarja']);
     if(!cE)return;
     rows.forEach(function(r){
       var name=String(r[cE]).trim();if(!name)return;
-      var day=String(cW?r[cW]:'').trim()||sn,d=cD?pdate(r[cD]):null,w=cK?String(r[cK]).trim():'',rp=cR?String(r[cR]).trim():'';
-      if(d){
-        if(w===''&&rp==='')return;
+      var day=String(cW?r[cW]:'').trim()||sn,rp=cR?String(r[cR]).trim():'',n=cS?Math.min(Math.max(parseInt(r[cS],10)||0,0),30):0;
+      if(mode==='hist'){
+        var d=cD?pdate(r[cD]):null,w=cK?String(r[cK]).trim():'';
+        if(!d||(w===''&&rp===''))return;
         var t=d.getTime(),key=t+'|'+day,ss=hk[key];
         if(!ss){ss=hk[key]={t:t,f:day,items:[]};hist.push(ss)}
         var it=ss.items.filter(function(x){return x.name===name})[0];
         if(!it){it={name:name,sets:[]};ss.items.push(it)}
-        it.sets.push({w:w,r:rp});
+        for(var q=0;q<(n||1);q++)it.sets.push({w:w,r:rp});
       }else{
-        var p=pk[day];if(!p){p=pk[day]={f:day,n:'',ex:[]};prog.push(p)}
-        if(p.ex.indexOf(name)<0)p.ex.push(name);
+        var p=pk[day];if(!p){p=pk[day]={f:day,n:'',ex:[],mt:[]};prog.push(p)}
+        if(p.ex.indexOf(name)<0){p.ex.push(name);p.mt.push({n:n,r:rp})}
       }
     });
   });
-  if(hist.length){
+  if(mode==='hist'){
+    if(!hist.length)return {msg:tr('No usable rows found. Check that the file has the columns “Date” and “Exercise”.')};
     var sets=0;hist.forEach(function(s){s.items.forEach(function(i){sets+=i.sets.length})});
     hist.sort(function(a,b){return a.t-b.t});
-    return {p:{hist:hist,prog:[]},msg:'Found '+hist.length+' workouts and '+sets+' sets, '+dt(hist[0].t)+' to '+dt(hist[hist.length-1].t)+'. They will be added to History.'};
+    return {p:{hist:hist,prog:[]},msg:tr('Found {n} workouts and {s} sets, {a} to {b}. They will be added to History.',{n:hist.length,s:sets,a:dt(hist[0].t),b:dt(hist[hist.length-1].t)})};
   }
-  if(prog.length)return {p:{hist:[],prog:prog},msg:'Found '+prog.length+' training days: '+prog.map(function(x){return x.f}).join(', ')+'. This replaces your current program.'};
-  return {msg:'No usable rows found. Check that the file has an Exercise column.'};
+  if(!prog.length)return {msg:tr('No usable rows found. Check that the file has the columns “Day” and “Exercise”.')};
+  return {p:{hist:[],prog:prog},msg:tr('Found {n} training days: {l}. This replaces your current program.',{n:prog.length,l:prog.map(function(x){return x.f}).join(', ')})};
 }
 function applyX(){
   if(!pend)return;
@@ -298,14 +314,14 @@ function applyX(){
 }
 app.addEventListener('change',function(e){
   if(e.target.id==='pe'){S.pex=e.target.value;save();render()}
-  else if(e.target.id==='xf'){
+  else if(e.target.id.indexOf('xf-')===0){var mode=e.target.id.slice(3);pmode=mode;
     var f=e.target.files[0];if(!f)return;
     var rd=new FileReader();
     rd.onload=function(){loadX(function(){
-      try{var r=parseX(rd.result);pend=r.p||null;pmsg=r.msg}catch(x){pend=null;pmsg='Could not read that file.'}
+      try{var r=parseX(rd.result,mode);pend=r.p||null;pmsg=r.msg}catch(x){pend=null;pmsg=tr('Could not read that file.')}
       render();
     })};
-    rd.onerror=function(){pend=null;pmsg='Could not read that file.';render()};
+    rd.onerror=function(){pend=null;pmsg=tr('Could not read that file.');render()};
     rd.readAsArrayBuffer(f);
   }
 });
