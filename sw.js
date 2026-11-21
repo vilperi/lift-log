@@ -1,5 +1,5 @@
-// Bump CACHE (for example to 'lift-log-2.4') when you change any file, so phones pick up the update.
-const CACHE = 'lift-log-2.3';
+// Bump CACHE (for example to 'lift-log-2.5') when you change any file, so phones pick up the update.
+const CACHE = 'lift-log-2.4';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'xlsx.full.min.js', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -27,4 +27,9 @@ self.addEventListener('fetch', e => {
       })
     )
   );
+});
+
+// The page asks which version is running and shows it at the bottom of the app.
+self.addEventListener('message', e => {
+  if (e.data === 'version' && e.source) e.source.postMessage({ version: CACHE });
 });

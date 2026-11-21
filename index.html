@@ -119,7 +119,7 @@ function ask(title,val,sug,cb){
 function render(){
   var h='<div class="hd"><h1>Lift log</h1><div class="seg"><button data-a="lang" data-v="en" class="'+(L==='en'?'on':'')+'">EN</button><button data-a="lang" data-v="fi" class="'+(L==='fi'?'on':'')+'">FI</button></div></div><div class="tabs top">'+[['w','Workout'],['g','Program'],['p','Progress'],['h','History'],['b','Backup']].map(function(t){return '<button data-a="tab" data-v="'+t[0]+'" class="'+(S.tab===t[0]?'on':'')+'">'+tr(t[1])+'</button>'}).join('')+'</div>';
   if(S.tab==='w')h+=work();else if(S.tab==='g')h+=pick();else if(S.tab==='p')h+=prog();else if(S.tab==='h')h+=hist();else h+=bak();
-  app.innerHTML=h+'<div class="mut" style="text-align:center;margin:18px 0 0;font-size:12px">Lift log v2</div>';tick();
+  app.innerHTML=h+'<div id="ver" class="mut" style="text-align:center;margin:18px 0 0;font-size:12px">Lift log '+VER+'</div>';tick();
 }
 function work(){
   var d=S.day,dr=draft(d);
@@ -239,7 +239,7 @@ function prog(){
   if(m==='e1')h+='<p class="mut" style="margin:8px 0 0;font-size:13px">'+tr('Estimated 1RM uses the Epley formula on your best set. It is least reliable above about 12 reps.')+'</p>';
   return h+'</div>';
 }
-var cp=-1;
+var cp=-1,VER='v2';
 function usePreset(i){
   if(cp!==i){cp=i;return}
   S.days=mk(i);S.drafts={};S.day=0;S.tab='w';cp=-1;
@@ -327,5 +327,14 @@ app.addEventListener('change',function(e){
 });
 render();
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
-if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+function showVer(v){VER=v;var el=document.getElementById('ver');if(el)el.textContent='Lift log '+VER}
+try{var sv=localStorage.getItem('liftlog.ver');if(sv)showVer(sv)}catch(e){}
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.addEventListener('message',function(e){
+    if(e.data&&e.data.version){var v='v'+String(e.data.version).replace('lift-log-','');showVer(v);try{localStorage.setItem('liftlog.ver',v)}catch(x){}}
+  });
+  var askV=function(){var c=navigator.serviceWorker.controller;if(c)c.postMessage('version')};
+  navigator.serviceWorker.addEventListener('controllerchange',askV);
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(){return navigator.serviceWorker.ready}).then(askV).catch(function(){})});
+}
 </script></body></html>
